@@ -1,0 +1,8 @@
+---
+- name: Verify
+  hosts: all
+  tasks:
+    - name: Check that etcher is installed
+      ansible.builtin.stat:
+        path: /usr/bin/balena-etcher
+      register: etcher_installed_result

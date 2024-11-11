@@ -1,0 +1,12 @@
+---
+balena_base_url: https://github.com/{{ etcher_repo }}/releases/download/v{{ etcher_version }}
+
+etcher_arch: "{% if ansible_architecture == 'x86_64' %}amd64{% else %}{{ ansible_architecture }}{% endif %}"
+
+etcher_repo: balena-io/etcher
+
+etcher_version: 1.19.25
+
+etcher_url: "{{ balena_base_url }}/{{ __etcher_package }}"
+
+etcher_state: present

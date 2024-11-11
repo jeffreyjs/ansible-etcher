@@ -1,0 +1,23 @@
+---
+- name: Import variables.
+  ansible.builtin.include_vars:
+    file: vars/{{ ansible_distribution }}.yml
+
+- name: Check if balnea-etcher is installed.
+  ansible.builtin.stat: /usr/bin/balnea-etcher
+  register: etcher_installed_result
+  tags: ["packages", "etcher"]
+
+- name: Run install tasks.
+  when:
+    - not etcher_installed_result.stat.exists
+    - etcher_state == "present"
+  ansible.builtin.include_tasks: install.yml
+  tags: ["packages", "etcher", "install"]
+
+- name: Run uninstall tasks.
+  when:
+    - etcher_installed_result.stat.exists
+    - etcher_state == "absent"
+  ansible.builtin.include_tasks: uninstall.yml
+  tags: ["packages", "etcher", "uninstall"]

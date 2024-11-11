@@ -1,0 +1,62 @@
+---
+- name: Set latest version.
+  when:
+    - not etcher_installed_result.stat exists
+  tags: ["packages", "etcher"]
+  block:
+    - name: Get latest release.
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/{{ etcher_repo }}/releases/latest
+        return_content: true
+      register: etcher_release
+
+    - name: Set version if not defined.
+      ansible.builtin.set_fact:
+        etcher_version: "{{ etcher_release.json.tag_name | regex_search('[0-9].*') }}"
+
+    - name: Check installed version.
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          etcher version 2>&1 | grep -q {{ etcher_version }}
+        executable: /bin/bash
+      failed_when: false
+      changed_when: false
+      register: etcher_version_match
+
+    - name: Get checksums.
+      when: etcher_version_match.rc != 0 or installed_result.rc == 0
+      block:
+        - name: Set etcher_system fact.
+          ansible.builtin.set_fact:
+            etcher_system: "{{ ansible_system | lower }}"
+          run_once: true
+
+        - name: Get checksum list from github.
+          ansible.builtin.set_fact:
+            etcher_checksums:
+              "{{ lookup('url', 'https://github.com/' + etcher_repo +
+              '/releases/download/v' + etcher_version + '/SHA256SUMS.'
+              + ansible_system + '.x64.txt', wantlist=True) | list }}"
+          run_once: true
+
+        - name: Get checksum for {{ etcher_arch }}.
+          ansible.builtin.set_fact:
+            etcher_checksum: "sha256:{{ item.split(' ')[0] }}"
+          with_items: "{{ etcher_checksums }}"
+          when:
+            - "(__etcher_package) in item"
+
+        - name: Download install package
+          ansible.builtin.get_url:
+            url: "{{ balena_base_url }}/{{ __etcher_package }}"
+            dest: "/tmp/{{ __etcher_package }}"
+            checksum: "{{ etcher_checksum }}"
+            force: true
+            mode: "0644"
+          register: etcher_download_result
+
+        - name: Install balena etcher
+          ansible.builtin.apt:
+            deb: "/tmp/{{ __etcher_package }}"
+          when: etcher_download_result.status_code == 200

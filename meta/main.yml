@@ -1,0 +1,37 @@
+---
+---
+galaxy_info:
+  author: Jeffrey Swindel
+  description: Install balenaEtcher on Linux systems.
+  license: license (BSD, MIT)
+  min_ansible_version: "2.16.0"
+  namespace: jeffreyjs
+  role_name: etcher
+  platforms:
+    - name: EL
+      versions:
+        - "6"
+        - "7"
+        - "8"
+        - "9"
+    - name: Debian
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - jammy
+        - focal
+        - bionic
+        - xenial
+        - trusty
+        - precise
+  galaxy_tags:
+    - development
+    - web
+    - nvm
+    - version
+    - nodejs
+    - node
+    - javascript
+
+dependencies: []

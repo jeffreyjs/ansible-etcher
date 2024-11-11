@@ -1,0 +1,5 @@
+---
+- name: Install balena etcher
+  ansible.builtin.apt:
+    name: balena-etcher
+    state: absent

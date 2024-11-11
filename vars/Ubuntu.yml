@@ -1,0 +1,3 @@
+---
+__etcher_package: balena-etcher_{{ etcher_version }}_{{ etcher_arch }}.deb
+
