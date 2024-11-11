@@ -1,21 +1,7 @@
 ---
 - name: Converge
   hosts: all
-
-  pre_tasks:
-    - name: Update apt cache on Debian systems.
-      ansible.builtin.apt:
-        update_cache: true
-        name: wget
-      when: ansible_os_family == "Debian"
-
-    - name: Update pacman cache on Archlinux systems.
-      community.general.pacman:
-        update_cache: true
-        upgrade: true
-      when: ansible_os_family == "Archlinux"
-
   tasks:
-    - name: Include fail2ban
+    - name: Include etcher role.
       ansible.builtin.include_role:
-        name: jeffreyjs.fail2ban
+        name: jeffreyjs.etcher

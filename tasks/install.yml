@@ -1,7 +1,7 @@
 ---
 - name: Set latest version.
   when:
-    - not etcher_installed_result.stat exists
+    - not etcher_installed_result.stat.exists
   tags: ["packages", "etcher"]
   block:
     - name: Get latest release.
@@ -14,18 +14,22 @@
       ansible.builtin.set_fact:
         etcher_version: "{{ etcher_release.json.tag_name | regex_search('[0-9].*') }}"
 
-    - name: Check installed version.
-      ansible.builtin.shell:
-        cmd: |
-          set -o pipefail
-          etcher version 2>&1 | grep -q {{ etcher_version }}
-        executable: /bin/bash
-      failed_when: false
-      changed_when: false
-      register: etcher_version_match
+    - name: Check installed version file
+      block:
+        - name: Check if etcher-version file exists.
+          ansible.builtin.stat:
+            path: "{{ etcher_version_file }}"
+          register: version_file
+        - name: Get contents of etcher-version file.
+          ansible.builtin.slurp:
+            src: "{{ etcher_version_file }}"
+          when: version_file.stat.exists
+          register: etcher_installed_version
 
     - name: Get checksums.
-      when: etcher_version_match.rc != 0 or installed_result.rc == 0
+      when: |
+        not version_file.stat.exists 
+        or etcher_installed_version.content | b64decode != etcher_version
       block:
         - name: Set etcher_system fact.
           ansible.builtin.set_fact:
@@ -57,6 +61,21 @@
           register: etcher_download_result
 
         - name: Install balena etcher
+          become: true
+          become_method: ansible.builtin.sudo
           ansible.builtin.apt:
             deb: "/tmp/{{ __etcher_package }}"
           when: etcher_download_result.status_code == 200
+
+        # workaround for etcher version check
+        - name: Write version to file
+          become: true
+          become_method: ansible.builtin.sudo
+          ansible.builtin.copy:
+            content: "{{ etcher_version }}"
+            dest: "{{ etcher_version_file }}"
+            owner: root
+            group: root
+            mode: "0644"
+          when: etcher_download_result.status_code == 200
+          tags: ["etcher"]

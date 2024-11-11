@@ -1,5 +1,4 @@
 ---
----
 galaxy_info:
   author: Jeffrey Swindel
   description: Install balenaEtcher on Linux systems.
@@ -8,12 +7,6 @@ galaxy_info:
   namespace: jeffreyjs
   role_name: etcher
   platforms:
-    - name: EL
-      versions:
-        - "6"
-        - "7"
-        - "8"
-        - "9"
     - name: Debian
       versions:
         - all

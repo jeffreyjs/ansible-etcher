@@ -1,0 +1,7 @@
+ansible
+docker
+molecule
+molecule-plugins[docker]
+pre-commit
+python-semantic-release
+

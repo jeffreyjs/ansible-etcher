@@ -36,6 +36,12 @@ Set the version to install, if omitted then it will query the GitHub api for the
 # etcher_version: 1.19.25
 ```
 
+A file with the current installed version, this is a workaround for checking via a command.
+
+```yaml
+etcher_version_file: /usr/share/etcher-version
+```
+
 Full URL for the package
 
 ```yaml
