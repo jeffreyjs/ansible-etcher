@@ -1,4 +1,4 @@
-# Ansible Role: log2ram
+# Ansible Role: etcher
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
